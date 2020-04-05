@@ -111,6 +111,7 @@ public class HiddenMarkovModel<H, E> {
     /**
      * Calculates the most probable hidden state sequence which may have generated a given emitted sequence
      * @see <a href="https://en.wikipedia.org/wiki/Viterbi_algorithm">en.wikipedia.org/wiki/Viterbi_algorithm</a>
+     * @param sequence the emitted sequence to be decoded
      * @return the most probable hidden state sequence which generated the given emitted sequence
      */
     public List<H> decodeSequence(List<E> sequence) {
