@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * An extension of a MarkovModel to be used specifically for text generation
+ * Very similar to {@link StringMarkovModel} except works with transitions of sequences of three strings rather than single strings
+ * Will create sequences more closely related to original set but at high risk of over-fitting without very large training set of string sequences
+ */
 public class StringTrigramModel extends MarkovModel<Trip<String>> implements TextGenerativeModel {
 
     private static final Trip<String> defaultStartTrip = new Trip("\\s", "\\s", "\\s");
@@ -43,10 +48,28 @@ public class StringTrigramModel extends MarkovModel<Trip<String>> implements Tex
         return new StringTrigramModel(MarkovModel.fromSequences(trigramSequences), startTrip, endTrip);
     }
 
-    public static StringTrigramModel fromStrings(Collection<String> strings, String regex) { return StringTrigramModel.fromStrings(strings, regex, defaultStartTrip, defaultEndTrip); }
-
+    /**
+     * A static factory method to create a model given a collection of string state sequences to be split into sequences with a given regex
+     * @param strings the collection of string state sequences
+     * @param regex the regex used to split the strings into actual state sequences
+     * @param startString the unique string not seen anywhere else in the sequences used internally indicate the start of a sentence
+     * @param endString the unique string not seen anywhere else in the sequences used to indicate the start of a sentence
+     * @return a {@code StringTrigramModel} used for generating string sequences according to the transition probabilities of string triples calculated from the given collection of string sequences
+     */
     public static StringTrigramModel fromStrings(Collection<String> strings, String regex, String startString, String endString) { return StringTrigramModel.fromStrings(strings, regex, new Trip(startString, startString, startString), new Trip(endString, endString, endString)); }
 
+    /**
+     * A static factory method to create a model given a collection of string state sequences to be split into sequences with a given regex using a default start and end string
+     * @param strings the collection of string state sequences
+     * @param regex the regex used to split the strings into actual state sequences
+     * @return a {@code StringTrigramModel} used for generating string sequences according to the transition probabilities of string triples calculated from the given collection of string sequences
+     */
+    public static StringTrigramModel fromStrings(Collection<String> strings, String regex) { return StringTrigramModel.fromStrings(strings, regex, defaultStartTrip, defaultEndTrip); }
+
+    /**
+     * Generates a random string sequence using the model's probabilities of transitioning from a given string triple to another
+     * @return a generated string sequence concatenated into a single string
+     */
     public String generateString() {
         List<Trip<String>> sequence = super.generateSequence(startTrip, endTrip);
         sequence = sequence.subList(1, sequence.size()-1);

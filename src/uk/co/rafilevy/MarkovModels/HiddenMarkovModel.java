@@ -6,6 +6,14 @@ import uk.co.rafilevy.utils.ValueGrid.ValueGrid;
 
 import java.util.*;
 
+/**
+ * A derivative of a MarkovModel where there is a hidden ordered sequence of states of type  with fixed transition probabilities between states
+ * These hidden states each emit a value such that there is an observed ordered sequence of emitted values
+ * The class can be used to generate sequences probabilistically following the model or to decode an emitted sequence giving the most probable hidden sequence that generated it
+ * @see <a href="https://en.wikipedia.org/wiki/Hidden_Markov_model">en.wikipedia.org/wiki/Hidden_Markov_model</a>
+ * @param <H> The superset of the hidden sequence's states
+ * @param <E> The superset of the emitted sequence's states
+ */
 public class HiddenMarkovModel<H, E> {
 
     private Random randomGenerator;
@@ -42,6 +50,13 @@ public class HiddenMarkovModel<H, E> {
         return new HiddenMarkovModel<>(transitionMatrix, emissionMatrix);
     }
 
+    /**
+     * A static factory method which creates a model given pairs of hidden and emitted sequences which define the model's transition and emission probabilities
+     * @param sequences a mapping of hidden sequences and the emission sequences they generated which the model's probabilities will be defined from
+     * @param <HT> the superset of the hidden sequence's states
+     * @param <ET> the superset of the emitted sequence's states
+     * @return a model with probabilities defined by the given sequence pairs
+     */
     public static<HT, ET> HiddenMarkovModel<HT, ET> fromSequences(Map<List<HT>, List<ET>> sequences) {
         MutableIntGrid<HT, HT> transitionOccurrences = new MutableIntGrid<>();
         MutableIntGrid<HT, ET> emissionOccurrences = new MutableIntGrid<>();
@@ -59,6 +74,12 @@ public class HiddenMarkovModel<H, E> {
         return HiddenMarkovModel.fromOccurrenceMatrices(transitionOccurrences, emissionOccurrences);
     }
 
+    /**
+     * Generates a random emitted sequence following the model's probabilities with a fixed length
+     * @param startState the state to start the hidden sequence with
+     * @param length the length of the generated sequence
+     * @return a randomly generated sequence
+     */
     public List<E> generateSequence(H startState, int length) {
         List<E> emissionSequence = new ArrayList<>();
         H current = startState;
@@ -70,6 +91,12 @@ public class HiddenMarkovModel<H, E> {
         return emissionSequence;
     }
 
+    /**
+     * Generates a random emitted sequence following the model's probabilities with a given start and end state
+     * @param startState the state to start the hidden sequence with
+     * @param endState the hidden state after which the sequence ends
+     * @return a randomly generated sequence
+     */
     public List<E> generateSequence(H startState, H endState) {
         List<E> emissionSequence = new ArrayList<>();
         H current = startState;
@@ -81,6 +108,11 @@ public class HiddenMarkovModel<H, E> {
         return emissionSequence;
     }
 
+    /**
+     * Calculates the most probable hidden state sequence which may have generated a given emitted sequence
+     * @see <a href="https://en.wikipedia.org/wiki/Viterbi_algorithm">en.wikipedia.org/wiki/Viterbi_algorithm</a>
+     * @return the most probable hidden state sequence which generated the given emitted sequence
+     */
     public List<H> decodeSequence(List<E> sequence) {
         LinkedList<Map<H, H>> helperFunction = new LinkedList<>();
         Map<H, Double> prevProbabilityMap = new HashMap<>();
