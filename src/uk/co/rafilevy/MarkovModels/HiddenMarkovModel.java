@@ -145,12 +145,4 @@ public class HiddenMarkovModel<H, E> {
         }
         return null;
     }
-
-    public static void main(String[] args) {
-        List<Integer> hiddenSeq = List.of(1,2,3,4,5,6);
-        List<Integer> observedSeq = List.of(1,2,3,4,5,6);
-        Map<List<Integer>, List<Integer>> pairing = Map.of(hiddenSeq, observedSeq);
-        HiddenMarkovModel<Integer, Integer> hmm = HiddenMarkovModel.fromSequences(pairing);
-        System.out.println(hmm.decodeSequence(List.of(1,2,3)));
-    }
 }
